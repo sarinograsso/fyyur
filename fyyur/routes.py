@@ -1,4 +1,6 @@
 from flask import render_template, request, flash, redirect, url_for
+from sqlalchemy import desc
+
 from fyyur import app, db
 from fyyur.helpers import format_datetime
 from fyyur.models import Genre, Venue, Artist, Show
@@ -14,7 +16,9 @@ app.jinja_env.filters['datetime'] = format_datetime
 
 @app.route('/')
 def index():
-    return render_template('pages/home.html')
+    venues = Venue.query.order_by(desc(Venue.created_at)).limit(10).all()
+    artists = Artist.query.order_by(desc(Artist.created_at)).limit(10).all()
+    return render_template('pages/home.html', venues=venues, artists=artists)
 
 
 #  List All Venues

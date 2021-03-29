@@ -1,5 +1,7 @@
 from datetime import datetime
 
+from sqlalchemy import func
+
 from fyyur import db
 
 # ----------------------------------------------------------------------------#
@@ -37,6 +39,7 @@ class Venue(db.Model):
     facebook_link = db.Column(db.String(120))
     seeking_talent = db.Column(db.Boolean, nullable=False, default=False)
     seeking_description = db.Column(db.String(120))
+    created_at = db.Column(db.DateTime, nullable=False, server_default=func.now())
     genres = db.relationship('Genre', secondary=genres_venues, backref=db.backref('venues', lazy=True))
     shows = db.relationship('Show', backref='venue', lazy='dynamic')
 
@@ -81,6 +84,7 @@ class Artist(db.Model):
     facebook_link = db.Column(db.String(120))
     seeking_venue = db.Column(db.Boolean, nullable=False, default=False)
     seeking_description = db.Column(db.String(120))
+    created_at = db.Column(db.DateTime, nullable=False, server_default=func.now())
     genres = db.relationship('Genre', secondary=artists_genres, backref=db.backref('artists', lazy=True))
     shows = db.relationship('Show', backref='artist', lazy='dynamic')
 
@@ -117,7 +121,8 @@ class Show(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     artist_id = db.Column(db.Integer, db.ForeignKey('artists.id'), nullable=False)
     venue_id = db.Column(db.Integer, db.ForeignKey('venues.id'), nullable=False)
-    start_time = db.Column(db.DateTime)
+    start_time = db.Column(db.DateTime, nullable=False)
+    created_at = db.Column(db.DateTime, nullable=False, server_default=func.now())
 
     def is_past(self):
         if self.start_time < datetime.today():
