@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from flask import render_template, request, flash, redirect, url_for
 from sqlalchemy import desc
 
@@ -80,17 +82,19 @@ def show_venue(venue_id):
 
     data = venue.to_dict()
 
-    past_shows = []
-    for past_show in venue.past_shows():
-        past_shows.append(past_show.artist_dict())
-    data['past_shows'] = past_shows
-    data['past_shows_count'] = venue.past_shows_count()
+    past_shows = db.session.query(Show).join(Artist).filter(Show.venue_id == venue_id).filter(Show.start_time < datetime.now()).all()
+    past_shows_data = []
+    for past_show in past_shows:
+        past_shows_data.append(past_show.artist_dict())
+    data['past_shows'] = past_shows_data
+    data['past_shows_count'] = len(past_shows_data)
 
-    upcoming_shows = []
-    for upcoming_show in venue.upcoming_shows():
-        upcoming_shows.append(upcoming_show.artist_dict())
-    data['upcoming_shows'] = upcoming_shows
-    data['upcoming_shows_count'] = venue.upcoming_shows_count()
+    upcoming_shows = db.session.query(Show).join(Artist).filter(Show.venue_id == venue_id).filter(Show.start_time > datetime.now()).all()
+    upcoming_shows_data = []
+    for upcoming_show in upcoming_shows:
+        upcoming_shows_data.append(upcoming_show.artist_dict())
+    data['upcoming_shows'] = upcoming_shows_data
+    data['upcoming_shows_count'] = len(upcoming_shows_data)
 
     return render_template('pages/show_venue.html', venue=data)
 
@@ -272,17 +276,19 @@ def show_artist(artist_id):
 
     data = artist.to_dict()
 
-    past_shows = []
-    for past_show in artist.past_shows():
-        past_shows.append(past_show.venue_dict())
-    data['past_shows'] = past_shows
-    data['past_shows_count'] = artist.past_shows_count()
+    past_shows = db.session.query(Show).join(Venue).filter(Show.artist_id == artist_id).filter(Show.start_time < datetime.now()).all()
+    past_shows_data = []
+    for past_show in past_shows:
+        past_shows_data.append(past_show.venue_dict())
+    data['past_shows'] = past_shows_data
+    data['past_shows_count'] = len(past_shows_data)
 
-    upcoming_shows = []
-    for upcoming_show in artist.upcoming_shows():
-        upcoming_shows.append(upcoming_show.venue_dict())
-    data['upcoming_shows'] = upcoming_shows
-    data['upcoming_shows_count'] = artist.upcoming_shows_count()
+    upcoming_shows = db.session.query(Show).join(Venue).filter(Show.artist_id == artist_id).filter(Show.start_time > datetime.now()).all()
+    upcoming_shows_data = []
+    for upcoming_show in upcoming_shows:
+        upcoming_shows_data.append(upcoming_show.venue_dict())
+    data['upcoming_shows'] = upcoming_shows_data
+    data['upcoming_shows_count'] = len(upcoming_shows_data)
 
     return render_template('pages/show_artist.html', artist=data)
 
